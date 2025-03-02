@@ -44,14 +44,13 @@ void insertAtEnd(Node*& head, int newData) {
     Node* newNode = new Node(newData);
     if (head == nullptr) {
         head = newNode;
+        return;
     } 
-    else {
-        Node* current = head;
-        while (current->next != nullptr) {
-            current = current->next;
-        }
-        current->next = newNode;
+    Node* current = head;
+    while (current->next != nullptr) {
+        current = current->next;
     }
+    current->next = newNode;
 }
 
 // Inserting a Node after a Given Node
