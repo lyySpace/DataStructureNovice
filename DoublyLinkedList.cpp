@@ -77,8 +77,8 @@ void insertBefore(Node*& head, int givenNode, int new_data){
     Node* new_node = new Node(new_data);
 
     Node* current = head;
-    if (current->data == givenNode){
-        insertAtBeginning(current, new_data);
+    if (head->data == givenNode){
+        insertAtBeginning(head, new_data);
         return;
     }
     while (current->next != nullptr){
@@ -169,27 +169,33 @@ void deleteBefore(Node*& head, int givenNode){
         }
         current = current->next;
     }
-    cout << "not found the given node\n";
-
+    if (current->data == givenNode){
+        deleteLast(head);
+    }
+    else{
+        cout << "not found the given node\n";
+    }
 }
 
 int main() {
     Node* head = nullptr;
-    
-    // 10 20 30
+    // 30 -> 20 -> 10 -> 40
     insertAtBeginning(head, 10);
     insertAtBeginning(head, 20);
     insertAtBeginning(head, 30);
-    
-    insertAtEnd(head,05);
+    insertAtEnd(head, 40);
+    printDoublyList(head);
 
-    insertAfter(head,20,77);
-    insertBefore(head,10,66);
+    // 30 -> 20 -> 77 -> 10 -> 44 -> 40
+    insertAfter(head, 10, 44);
+    insertBefore(head, 10, 77);
+    printDoublyList(head);
+
+    // 20 -> 77 -> 10 
     deleteFirst(head);
     deleteLast(head);
-    // 20 <-> 77 <-> 66 <-> 10 <-> NULL
-    deleteBefore(head,66);
-
+    deleteAfter(head, 10);
+    deleteBefore(head,20);
     printDoublyList(head);
     
     // clear

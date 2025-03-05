@@ -132,6 +132,10 @@ void deleteAfter(Node*& head, int givenNode){
     while (current->next != nullptr) {
         if (current->data == givenNode){
             Node* temp = current->next;
+            if (temp->next == nullptr){
+                deleteLast(head);
+                return;
+            }
             current->next = current->next->next;
             delete temp; 
             return;
@@ -139,7 +143,7 @@ void deleteAfter(Node*& head, int givenNode){
         current = current->next;
     }
     if (current->data == givenNode){
-        deleteLast(current);
+        cout << "given node cannot be the last\n";
     }
     else{
         cout << "not found the given node\n";
@@ -153,19 +157,24 @@ int main() {
     insertAtBeginning(head, 20);
     insertAtBeginning(head, 30);
     insertAtEnd(head, 40);
+    printList(head);
 
-
+    // Searching for a Value
     int key = 30;
     search(head, key);
 
-    insertbefore(head, 30, 11);
+    // 30 -> 20 -> 77 -> 10 -> 44 -> 40
+    insertAfter(head, 10, 44);
+    insertbefore(head, 10, 77);
+    printList(head);
 
-    deleteAfter(head, 20);
-
+    // 20 -> 77 -> 10 
+    deleteFirst(head);
+    deleteLast(head);
+    deleteAfter(head, 10);
     printList(head);
 
     
-
     // 釋放記憶體
     while (head) {
         Node* temp = head;

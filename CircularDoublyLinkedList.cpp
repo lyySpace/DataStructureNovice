@@ -58,7 +58,6 @@ void insertAtEnd(Node*& head, int new_data) {
     head->prev = new_node;
 }
 
-
 // deleting the First Node
 void deleteFirst(Node*& head){
     Node* temp = head;
