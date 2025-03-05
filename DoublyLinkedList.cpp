@@ -96,6 +96,82 @@ void insertBefore(Node*& head, int givenNode, int new_data){
 }
 
 // Deleting the First Node 
+void deleteFirst(Node*& head){
+    if (head == nullptr) {
+        cout << "original is null" << endl;
+        return;
+    }
+    Node* temp = head; 
+    head = head->next;
+    head->prev = nullptr;
+    delete temp;   
+}
+
+// Deleting the Last Node 
+void deleteLast(Node*& head){
+    if (head == nullptr) {
+        cout << "original is null" << endl;
+        return;
+    }
+
+    Node* current = head;
+    while (current->next != nullptr){
+        current = current->next;
+    }
+    Node* temp = current; 
+    current->prev->next = nullptr;
+    delete temp;   
+}
+
+// Deleting the Node After a Given Node
+void deleteAfter(Node*& head, int givenNode){
+    Node* current = head;
+    while (current->next != nullptr){
+        if (current->data == givenNode){
+            Node* temp = current->next; 
+            if (temp->next == nullptr){
+                deleteLast(head);
+                return;
+            }
+            temp->next->prev = current;
+            current->next = temp->next;
+            delete temp;
+            return;
+        }
+        current = current->next;
+    }
+    if (current->data == givenNode){
+        cout << "given node cannot be the last\n";
+    }
+    else{
+        cout << "not found the given node\n";
+    } 
+}
+
+// Deleting the Node Before a Given Node
+void deleteBefore(Node*& head, int givenNode){
+    Node* current = head;
+    if (current->data == givenNode){
+        cout << "given node cannot be the first\n";
+        return;
+    }
+    while (current->next != nullptr){
+        if (current->data == givenNode){
+            Node* temp = current->prev;
+            if (temp->prev == nullptr){
+                deleteFirst(head);
+                return;
+            }
+            temp->prev->next = current;
+            current->prev = temp->prev;
+            delete temp;
+            return;
+        }
+        current = current->next;
+    }
+    cout << "not found the given node\n";
+
+}
 
 int main() {
     Node* head = nullptr;
@@ -109,6 +185,10 @@ int main() {
 
     insertAfter(head,20,77);
     insertBefore(head,10,66);
+    deleteFirst(head);
+    deleteLast(head);
+    // 20 <-> 77 <-> 66 <-> 10 <-> NULL
+    deleteBefore(head,66);
 
     printDoublyList(head);
     
