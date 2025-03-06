@@ -92,7 +92,12 @@ void insertBefore(Node*& head, int givenNode, int new_data){
         }
         current = current->next;
     }
-    cout << "not found the given node\n";
+    if (current->data == givenNode){
+        insertAtEnd(head, new_data);
+    }
+    else{
+        cout << "not found the given node\n";
+    }
 }
 
 // Deleting the First Node 
@@ -192,10 +197,12 @@ int main() {
     printDoublyList(head);
 
     // 20 -> 77 -> 10 
-    deleteFirst(head);
-    deleteLast(head);
-    deleteAfter(head, 10);
-    deleteBefore(head,20);
+    //deleteFirst(head);
+    //deleteLast(head);
+    //deleteAfter(head, 10);
+    //deleteBefore(head,20);
+
+    insertBefore(head, 40, 33);
     printDoublyList(head);
     
     // clear
