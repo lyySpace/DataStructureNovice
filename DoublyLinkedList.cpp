@@ -81,7 +81,7 @@ void insertBefore(Node*& head, int givenNode, int new_data){
         insertAtBeginning(head, new_data);
         return;
     }
-    while (current->next != nullptr){
+    while (current->next != nullptr){ // 最後一個會檢查不到
         if (current->data == givenNode){
             new_node->next = current;
             new_node->prev = current->prev;
@@ -93,7 +93,11 @@ void insertBefore(Node*& head, int givenNode, int new_data){
         current = current->next;
     }
     if (current->data == givenNode){
-        insertAtEnd(head, new_data);
+        new_node->next = current;
+        new_node->prev = current->prev;
+        current->prev->next = new_node;
+        current->prev = new_node;
+        return;
     }
     else{
         cout << "not found the given node\n";
@@ -175,7 +179,11 @@ void deleteBefore(Node*& head, int givenNode){
         current = current->next;
     }
     if (current->data == givenNode){
-        deleteLast(head);
+        Node* temp = current->prev;
+        temp->prev->next = current;
+        current->prev = temp->prev;
+        delete temp;
+        return;
     }
     else{
         cout << "not found the given node\n";
@@ -202,7 +210,7 @@ int main() {
     //deleteAfter(head, 10);
     //deleteBefore(head,20);
 
-    insertBefore(head, 40, 33);
+    deleteBefore(head,40);
     printDoublyList(head);
     
     // clear
