@@ -77,10 +77,6 @@ public:
             data.push_back(features);
         }
         file.close();
-        for (string n : featureNames){
-            cout << n;
-        }
-        cout << "\n";
         return true;
     }
 
@@ -97,6 +93,7 @@ public:
 
     // 3. compute Gini Index
     double GiniIndex(const vector<int>& indices) {
+        // 1: positive, 0:negative
         int count0 = 0, count1 = 0;
         countLabels(indices, count0, count1);
         int total = count0 + count1;
@@ -148,6 +145,9 @@ public:
                 }
                 if (leftIndices.empty() || rightIndices.empty())
                     continue;
+
+                if (leftIndices.size() < minSamples || rightIndices.size() < minSamples)
+                    continue;
                 
                 double giniLeft = GiniIndex(leftIndices);
                 double giniRight = GiniIndex(rightIndices);
@@ -175,10 +175,19 @@ public:
 
         node->left = buildTree(bestLeftIndices);
         node->right = buildTree(bestRightIndices);
+
+        // Avoid left & right leaf have same label
+        if (node->left->isLeaf && node->right->isLeaf && node->left->label == node->right->label) {
+            node->isLeaf = true;
+            node->label = node->left->label;
+            node->left.reset();
+            node->right.reset();
+        }
+
         return node;
     }
 
-    // Train
+    // 5. Train
     void train() {
         vector<int> indices(data.size());
         for (int i = 0; i < data.size(); i++) {
@@ -187,20 +196,7 @@ public:
         root = buildTree(indices);
     }
 
-    // 對單一樣本進行預測
-    int predict(const vector<double>& sample) {
-        Node* current = root.get();
-        while (!current->isLeaf) {
-            int f = current->featureIndex;
-            if (sample[f] < current->threshold)
-                current = current->left.get();
-            else
-                current = current->right.get();
-        }
-        return current->label;
-    }
-
-    // Accuaracy
+    // 6. Accuaracy
     double computeAccuracy() {
         double sumCorrect = 0;
         computeAccuracyHelper(root.get(), sumCorrect);
@@ -224,7 +220,7 @@ public:
         }
     }
 
-    // Print!!
+    // 7. Print!!
     void printTree(Node* node, string indent = "", bool isLast = true) {
         if (!node)
             return;
@@ -238,15 +234,19 @@ public:
             indent += "│ ";
         }
         
+        double gini = GiniIndex(node->indices);
+
         if (node->isLeaf) {
             int count0, count1;
             countLabels(node->indices, count0, count1);
-            cout << "葉節點 (Label: " << node->label 
-                 << ", n0: " << count0 << ", n1: " << count1 << ")" << endl;
+            // n1=1=positive, n2=0=negative
+            cout << "Leaf node (Label: " << node->label 
+                 << ", n1: " << count1 << ", n2: " << count0 
+                 << ", Gini: " << gini << ")" << endl;
         } else {
-            cout << "節點 (Feature: " << node->featureIndex 
-                 << ", Threshold: " << node->threshold << ")" << endl;
-            // 假設左子節點不一定是最後一個分支，而右子節點是最後一個分支
+            cout << "Node (Feature: " << featureNames[node->featureIndex]
+                 << ", Threshold: " << node->threshold 
+                 << ", Gini: " << gini << ")" << endl;
             printTree(node->left.get(), indent, false);
             printTree(node->right.get(), indent, true);
         }
@@ -256,29 +256,31 @@ public:
     // ---------------------------
     // 以下為視覺化輸出：產生 DOT 檔案格式
     // ---------------------------
-    
-    // 遞迴產生 DOT 檔內容，並回傳該節點的唯一 ID
     int generateDot(Node* node, ofstream &out, int &nodeId) {
         int currentId = nodeId++;
+        double gini = GiniIndex(node->indices);
         if (node->isLeaf) {
-            // 葉節點標示：顯示 Label 與該節點樣本數量
             int count0, count1;
             countLabels(node->indices, count0, count1);
-            out << "  node" << currentId << " [label=\"葉: " << node->label
-                << "\\nn0:" << count0 << " n1:" << count1 << "\"];" << endl;
+            string fillColor = (node->label == 1) ? "#CF9E9E" : "#CBD8BB";
+            // n1=1=positive, n2=0=negative
+            out << "  node" << currentId 
+                << " [label=\"Leaf: " << node->label
+                << "\\nn1:" << count1 << " n2:" << count0
+                << "\\nGini:" << gini
+                << "\", style=filled, fillcolor=\"" << fillColor << "\"];" << endl;
         } else {
             out << "  node" << currentId << " [label=\""
-                << featureNames[node->featureIndex] << " < " << node->threshold << "\"];" << endl;
+                << featureNames[node->featureIndex] << " < " << node->threshold 
+                << "\\nGini:" << gini << "\"];" << endl;
             int leftId = generateDot(node->left.get(), out, nodeId);
             int rightId = generateDot(node->right.get(), out, nodeId);
-            // 畫邊：從父節點指向左右子節點
             out << "  node" << currentId << " -> node" << leftId << " [label=\"T\"];" << endl;
             out << "  node" << currentId << " -> node" << rightId << " [label=\"F\"];" << endl;
         }
         return currentId;
     }
 
-    // 產生 DOT 檔案 (決策樹視覺化)
     void exportToDot(const string &filename) {
         ofstream out(filename);
         if (!out.is_open()) {
@@ -301,25 +303,21 @@ int main(){
     string filename = "./Diagnosis_7features.csv";
     
     if (!tree.loadCSV(filename)) {
-        cerr << "讀取資料失敗！" << endl;
+        cerr << "Fail!" << endl;
         return 1;
     }
     
 
     tree.train();
-    cout << "決策樹結構：" << endl;
+    cout << "Decision Tree: " << endl;
     tree.printTree(tree.root.get());
     
     double accuracy = tree.computeAccuracy();
-    cout << "決策樹準確度: " << accuracy * 100 << "%" << endl;
+    cout << "Accuracy: " << accuracy * 100 << "%" << endl;
 
-    // 將決策樹輸出成 DOT 檔案
     tree.exportToDot("decision_tree.dot");
-    
-    // 範例：對第一筆資料進行預測
-    if (!tree.data.empty()) {
-        int pred = tree.predict(tree.data[0]);
-        cout << "第一筆資料預測結果: " << pred << endl;
-    }
+    // cd ~/DataStructureNew/HW
+    // dot -Tpng decision_tree.dot -o decision_tree.png
+
     return 0;
 }
