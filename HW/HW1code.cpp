@@ -188,12 +188,17 @@ public:
     }
 
     // 5. Train
-    void train() {
-        vector<int> indices(data.size());
-        for (int i = 0; i < data.size(); i++) {
-            indices[i] = i;
+    void train(const vector<int>& indices = vector<int>()) {
+        if (indices.empty()) {
+            vector<int> allIndices(data.size());
+            for (int i = 0; i < data.size(); i++) {
+                allIndices[i] = i;
+            }
+            root = buildTree(allIndices);
+        } 
+        else {
+            root = buildTree(indices);
         }
-        root = buildTree(indices);
     }
 
     // 6. Accuaracy
@@ -252,6 +257,18 @@ public:
         }
     }
 
+    // 8. Test
+    int predict(const vector<double>& sample) {
+        Node* current = root.get();
+        while (!current->isLeaf) {
+            int f = current->featureIndex;
+            if (sample[f] < current->threshold)
+                current = current->left.get();
+            else
+                current = current->right.get();
+        }
+        return current->label;
+    }
 
     // ---------------------------
     // 以下為視覺化輸出：產生 DOT 檔案格式, 再轉成.png
@@ -299,23 +316,53 @@ public:
 };
 
 int main(){
-    DecisionTree tree(5);
+    DecisionTree tree1(5);
     string filename = "./Diagnosis_7features.csv";
     
-    if (!tree.loadCSV(filename)) {
+    if (!tree1.loadCSV(filename)) {
         cerr << "Fail!" << endl;
         return 1;
     }
     
-
-    tree.train();
-    cout << "Decision Tree: " << endl;
-    tree.printTree(tree.root.get());
+    int totalSamples = tree1.data.size();
     
-    double accuracy = tree.computeAccuracy();
-    cout << "Accuracy: " << accuracy * 100 << "%" << endl;
+    vector<int> trainingIndices, testIndices;
+    for (int i = 0; i < totalSamples; i++) {
+        if (i < 450)
+            trainingIndices.push_back(i);
+        else if (i >= totalSamples - 190)
+            testIndices.push_back(i);
+    }
+    tree1.train(trainingIndices);
 
-    tree.exportToDot("HW1_decision_tree.dot");
+    cout << "Case1: 450 datas for train; 190 datas for test\n";
+    int correct = 0;
+    for (int idx : testIndices) {
+        int prediction = tree1.predict(tree1.data[idx]);
+        if (prediction == tree1.labels[idx])
+            correct++;
+    }
+    double accuracy1 = static_cast<double>(correct) / testIndices.size();
+    cout << "Test set accuracy: " << accuracy1 * 100 << "%" << endl;
+    
+    cout << "----------------------------------------------------------------\n";
+
+    DecisionTree tree2(5);
+    if (!tree2.loadCSV(filename)) {
+        cerr << "Fail!" << endl;
+        return 1;
+    }
+
+    tree2.train();
+
+    cout << "Case:2 All datas go trainning!\n";
+    cout << "Decision Tree: " << endl;
+    //tree2.printTree(tree2.root.get());
+    
+    double accuracy2 = tree2.computeAccuracy();
+    cout << "Accuracy: " << accuracy2 * 100 << "%" << endl;
+
+    // tree.exportToDot("HW1_decision_tree.dot");
     // cd ~/DataStructureNew/HW
     // dot -Tpng HW1_decision_tree.dot -o HW1_decision_tree.png
 
