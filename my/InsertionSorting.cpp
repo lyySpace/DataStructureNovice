@@ -10,12 +10,12 @@ private:
     int size;     
 
 public:
-    // 建構子
+    // Constructor 
     ArrayList(int cap) : capacity(cap), size(0) {
         arr = new int[capacity];
     }
 
-    // 解構子
+    // Destructor
     ~ArrayList() {
         delete[] arr;
     }
@@ -91,29 +91,29 @@ public:
         if (head == nullptr || head->next == nullptr)
             return;
 
-        Node* sorted = nullptr;  // 新建立的排序後的串列
+        Node* sorted = nullptr; // sorted is strart
 
-        // 逐一取出原串列中的節點
         Node* current = head;
         while (current != nullptr) {
-            Node* next = current->next;  // 暫存下一個節點
+            Node* currentnext = current->next;  
 
-            // 若 sorted 為空，或 current 節點應插入到 sorted 的最前端
-            if (sorted == nullptr || sorted->data >= current->data) {
+            // 1. sorted is null, then insert at the beginning
+            // 2. sorted all >= current, then insert at the beginning
+            if (sorted == nullptr || sorted->data >= current->data) { 
                 current->next = sorted;
                 sorted = current;
-            } else {
-                // 找到在 sorted 中的正確位置插入 current 節點
-                Node* temp = sorted;
+            } 
+            else {
+                Node* temp = sorted; // from start to find insert point
                 while (temp->next != nullptr && temp->next->data < current->data) {
                     temp = temp->next;
                 }
                 current->next = temp->next;
                 temp->next = current;
             }
-            current = next;  // 處理下一個節點
+            current = currentnext;  
         }
-        head = sorted;  // 更新 head 指向排序後的串列
+        head = sorted;  
 
     }
 
