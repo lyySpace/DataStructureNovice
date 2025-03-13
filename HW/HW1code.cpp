@@ -254,7 +254,7 @@ public:
 
 
     // ---------------------------
-    // 以下為視覺化輸出：產生 DOT 檔案格式
+    // 以下為視覺化輸出：產生 DOT 檔案格式, 再轉成.png
     // ---------------------------
     int generateDot(Node* node, ofstream &out, int &nodeId) {
         int currentId = nodeId++;
@@ -315,9 +315,9 @@ int main(){
     double accuracy = tree.computeAccuracy();
     cout << "Accuracy: " << accuracy * 100 << "%" << endl;
 
-    tree.exportToDot("decision_tree.dot");
+    tree.exportToDot("HW1_decision_tree.dot");
     // cd ~/DataStructureNew/HW
-    // dot -Tpng decision_tree.dot -o decision_tree.png
+    // dot -Tpng HW1_decision_tree.dot -o HW1_decision_tree.png
 
     return 0;
 }
