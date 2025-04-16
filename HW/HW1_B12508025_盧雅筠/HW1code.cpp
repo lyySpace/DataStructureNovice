@@ -357,7 +357,7 @@ int main(){
 
     cout << "Case:2 All datas go trainning!\n";
     cout << "Decision Tree: " << endl;
-    //tree2.printTree(tree2.root.get());
+    tree2.printTree(tree2.root.get());
     
     double accuracy2 = tree2.computeAccuracy();
     cout << "Accuracy: " << accuracy2 * 100 << "%" << endl;
