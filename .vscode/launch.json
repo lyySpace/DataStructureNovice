@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug with F5",
+      "type": "lldb",                         
+      "request": "launch",
+      "program": "${fileDirname}/${fileBasenameNoExtension}",
+      "args": [],
+      "cwd": "${fileDirname}",
+      "preLaunchTask": "build active file",
+      "console": "integratedTerminal"
+    }
+  ]
+}
